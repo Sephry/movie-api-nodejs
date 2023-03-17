@@ -5,7 +5,6 @@ const router = express.Router();
 // Models
 const Director = require("../models/Director");
 
-/* GET home page. */
 router.post("/", (req, res, next) => {
   const director = new Director(req.body);
   const promise = director.save();
@@ -72,7 +71,7 @@ router.get("/:director_id", (req, res) => {
   const promise = Director.aggregate([
     {
       $match: {
-        '_id': mongoose.Types.ObjectId(req.params.director_id),
+        _id: mongoose.Types.ObjectId(req.params.director_id),
       },
     },
     {
@@ -116,6 +115,34 @@ router.get("/:director_id", (req, res) => {
   promise
     .then((data) => {
       res.json(data);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+});
+
+router.put("/:director_id", (req, res, next) => {
+  const promise = Director.findByIdAndUpdate(req.params.director_id, req.body, {
+    new: true,
+  });
+
+  promise
+    .then((director) => {
+      if (!director) next({ message: "The director was not found.", code: 99 });
+      res.json(director);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+});
+
+router.delete("/:director_id", (req, res, next) => {
+  const promise = Director.findByIdAndRemove(req.params.director_id, req.body);
+
+  promise
+    .then((director) => {
+      if (!director) next({ message: "The director was not found.", code: 99 });
+      res.json(director);
     })
     .catch((err) => {
       res.json(err);
